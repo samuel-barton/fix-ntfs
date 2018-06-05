@@ -12,3 +12,6 @@ unmounts them, runs `ntfsfix` on them, and then remounts them as read-write.
 `ntfsfix` is a part of the `ntfs-3g` package. 
 
 This script must be run as root.
+
+Run `# install.sh` to install `fix-share` as a systemd service to run at boot.
+
