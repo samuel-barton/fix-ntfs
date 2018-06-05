@@ -1,0 +1,78 @@
+#! /bin/bash
+
+#=============================================================================
+#
+# Name: fix-share
+#
+# Author: Samuel Barton
+#
+# Date: April 29, 2018
+#
+# Description: The problem is that with the storage drive being NTFS, when
+#              a file is modified on the Windows side the filesystem becomes
+#              unsafe, and so Linux mounts it as read-only. 
+#
+#              The solution is to find the NTFS drives which are currently 
+#              mounted on the machine as Read-only, run ntfsfix on them, and
+#              then remount the drives as read-write. 
+#
+#              This must be run as root.
+#
+#=============================================================================
+
+if [ $UID -ne 0 ]
+then
+        echo This must be run as root!
+        exit 1
+fi
+
+# find the NTFS drives
+blkid | grep -i 'TYPE="ntfs"' | awk '{ print $1;}' | sed 's/://' > tmp
+mount | grep -f tmp | awk '{ print $1;}' > drives
+df | grep -f drives | awk '{ print $6; }' > mnts
+
+# fix all mounted NTFS drives
+count=1
+num_drives=$(wc -l drives | awk '{print $1;}')
+while [ $count -le $num_drives ]
+do
+    # pull a drive and associated mount point out of the list
+    drive=$(cat -n drives | grep " $count" | awk '{ print $2; }')
+    mount_point=$(cat -n mnts | grep " $count" | awk '{ print $2; }')
+
+    echo "$drive mounted as NTFS."
+
+    # check to see if the drive is mounted read-only
+    touch $mount_point/test 2>&1
+
+    if [ $? -eq 0 ]
+    then
+        echo "      Currently mounted read/write."
+        rm "$mount_point/test"
+        count=$(($count + 1))
+        continue
+    fi
+
+    echo "      Currently mounted read-only." 
+
+    # Check to see if the drive was supposed to be mounted read-only
+    # if it is, then skip this drive.
+    $mounted_ro = $(grep "^UUID=" /etc/fstab | egrep " ro,*" | grep " $count")
+
+    if [ $mounted_ro != "" ]
+    then
+        echo "      It should be according to /etc/fstab"
+        count=$(($count + 1))
+        continue
+    fi
+
+    echo "      It should be mounted read-write."
+    # fix the drive. Each step is taken only if the previous step succeeded
+    umount $mount_point && ntfsfix $drive && mount -o rw $drive $mount_point
+
+    echo "$drive successfully remounted as read-write."
+    count=$(($count + 1))
+done
+
+# cleanup temp files
+rm tmp drives mnts
