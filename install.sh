@@ -17,4 +17,7 @@ then
 fi
 
 cp fix-share /usr/bin
-cp fix-share.conf /etc/init
+cp fix-share.service /etc/systemd/system/fix-share.service
+
+systemctl daemon-reload
+systemctl enable fix-share.service

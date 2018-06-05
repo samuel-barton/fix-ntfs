@@ -1,0 +1,10 @@
+[Unit]
+Description=Job that runs fix-share
+
+[Service]
+ExecStart=/usr/bin/fix-share
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
