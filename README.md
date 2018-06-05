@@ -1,4 +1,4 @@
-##Fix incorrectly mounted NTFS drives
+## Fix incorrectly mounted NTFS drives
 
 This program fixes NTFS drives which mount as read-only on dual boot systems 
 running both Windows and Linux if Windows Fast Boot is turned on. 
