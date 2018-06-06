@@ -59,7 +59,7 @@ do
     # if it is, then skip this drive.
     $mounted_ro = $(grep "^UUID=" /etc/fstab | egrep " ro,*" | grep " $count")
 
-    if [ $mounted_ro != "" ]
+    if [ -z $mounted_ro ]
     then
         echo "      It should be according to /etc/fstab"
         count=$(($count + 1))
