@@ -57,7 +57,7 @@ do
 
     # Check to see if the drive was supposed to be mounted read-only
     # if it is, then skip this drive.
-    $mounted_ro = $(grep "^UUID=" /etc/fstab | egrep " ro,*" | grep " $count")
+    mounted_ro=$(grep "^UUID=" /etc/fstab | egrep " ro,*" | grep " $count")
 
     if [ -z $mounted_ro ]
     then
